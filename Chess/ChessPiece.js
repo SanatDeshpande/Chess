@@ -21,51 +21,113 @@ function ChessPiece(isBlack, xPos, yPos, type) {
     if (type == "Pawn") {
         this.originalPosition = this.position;
     }
+    this.getPosObj = function() {
+        return new posObj(this.xPos, this.yPos, this.isBlack);
+    }
+}
+function posObj(x, y, isBlack) {
+    this.x = x;
+    this.y = y;
+    this.ogX = this.x;
+    this.ogY = this.y;
+    this.isBlack = isBlack;
+    this.shift = 1;
+    if (!this.isBlack) {
+        this.shift = -1;
+    }
+    this.movementRange = [
+        this.forward,
+        this.back,
+        this.left,
+        this.right
+    ];
+    this.forward = function() {
+        this.x += this.shift;
+        this.x = this.boundVal(this.x);
+    }
+    this.back = function() {
+        this.x -= this.shift;
+        this.x = this.boundVal(this.x);
+    }
+    this.left = function() {
+        this.y -= this.shift;
+        this.y = this.boundVal(this.y);
+    }
+    this.right = function() {
+        this.y += this.shift;
+        this.y = this.boundVal(this.y);
+    }
+    this.revert = function() {
+        this.x = this.ogX;
+        this.y = this.ogY;
+    }
+    this.getPositionArray = function() {
+        return [this.x, this.y];
+    }
+    this.boundVal =  function(val) {
+        if (val > 7) {
+            return 7;
+        } else if (val < 0) {
+            return 0;
+        } else {
+            return val;
+        }
+    }
 }
 function flatten(x, y) {
     return x * 8 + y;
 }
 
 function getMoves(piece) {
+    if (piece === null) {
+        return;
+    }
     if (piece.type == "Pawn") {
         return getPawnMoves(piece);
+    } else if (piece.type == "King") {
+        return getKingMoves(piece);
     }
 }
 function getPawnMoves(piece) {
-    var currentX = piece.xPos;
-    var currentY = piece.yPos;
-    var possiblePositions = []
-    var shift;
-    if (!piece.isBlack) {
-        shift = -1;
-    } else {
-        shift = 1;
-    }
-    if (!isOccupied([currentX + shift, currentY])) {
-        possiblePositions.push([currentX + shift, currentY]);
-        if (piece.position == piece.originalPosition && !isOccupied([currentX + shift*2, currentY])) {
-            possiblePositions.push([currentX + shift*2, currentY]);
+    var possiblePositions = [];
+    var pos = piece.getPosObj();
+    pos.forward();
+    if (getPieceColor(pos.x, pos.y) == !piece.isBlack) {
+        possiblePositions.push(pos.getPositionArray());
+    } else if (!isOccupied(pos.x, pos.y)) {
+        possiblePositions.push(pos.getPositionArray());
+        pos.forward();
+        if (getPieceColor(pos.x, pos.y) == !piece.isBlack || !isOccupied(pos.x, pos.y)) {
+            possiblePositions.push(pos.getPositionArray());
         }
     }
-    if (isOccupied([currentX + shift, currentY + 1])) {
-        possiblePositions.push([currentX + shift, currentY + 1]);
+    pos.revert();
+    pos.forward();
+    var pos2 = new posObj(pos.x, pos.y, pos.isBlack);
+    pos.left();
+    if (getPieceColor(pos.x, pos.y) == !piece.isBlack) {
+        possiblePositions.push(pos.getPositionArray());
     }
-    if (isOccupied([currentX + shift, currentY - 1])) {
-        possiblePositions.push([currentX + shift, currentY - 1]);
+    pos2.right();
+    if (getPieceColor(pos2.x, pos2.y) == !piece.isBlack) {
+        possiblePositions.push(pos2.getPositionArray());
     }
     return possiblePositions;
 }
 function getKingMoves(piece) {
-    var xPos = piece.xPos;
-    var yPos = piece.yPos;
+    var possiblePositions = [];
+    var pos = piece.getPosObj();
 }
-function isOccupied(position) {
-    var squares = document.getElementsByClassName("square");
-    position = flatten(position[0], position[1]);
-    for (var i in squares) {
-        if (squares[i].innerHTML != "" && i == position) {
-            return true;
+function isOccupied(x, y) {
+    var occupied = getPieceColor(x, y);
+    return occupied != null;
+}
+function getPieceColor(x, y) {
+    var position = flatten(x, y);
+    for (var i in pieces) {
+        if (pieces[i].position == position) {
+            return pieces[i].isBlack;
         }
     }
-    return false;
+    return null;
 }

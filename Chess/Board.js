@@ -1,11 +1,16 @@
 var pieces = new Array();
 
 function handleClick(sq) {
+    var found = false;
     for (var i in pieces) {
         if (sq.id == pieces[i].position) {
             mapNextMoves(pieces[i]);
+            found = true;
             break;
         }
+    }
+    if (!found) {
+        mapNextMoves(null);
     }
 }
 
@@ -66,8 +71,8 @@ function initBoard() {
 
 function populateBoard() {
     var squares = document.getElementsByClassName("square");
-    pieces.push(new ChessPiece(true, 3, 0, "King"));
-    pieces.push(new ChessPiece(true, 2, 1, "King"));
+    pieces.push(new ChessPiece(false, 3, 0, "King"));
+    pieces.push(new ChessPiece(false, 2, 1, "King"));
     //initialize pawns
     for (var i = 0; i < 8; i++) {
         pieces.push(new ChessPiece(true, 1, i, "Pawn"));
