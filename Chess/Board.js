@@ -1,10 +1,16 @@
 var pieces = new Array();
 
 function handleClick(sq) {
+    var squares = document.getElementsByClassName("square");
+    if (sq.style.backgroundColor == "rgb(0, 255, 0)") {
+        movePiece(sq.id);
+        return;
+    }
     var found = false;
     for (var i in pieces) {
         if (sq.id == pieces[i].position) {
             mapNextMoves(pieces[i]);
+            pieces[i].selected = true;
             found = true;
             break;
         }
@@ -12,6 +18,14 @@ function handleClick(sq) {
     if (!found) {
         mapNextMoves(null);
     }
+}
+
+function movePiece(position) {
+    
+}
+
+function refreshBoard() {
+
 }
 
 function mapNextMoves(piece) {
@@ -71,8 +85,6 @@ function initBoard() {
 
 function populateBoard() {
     var squares = document.getElementsByClassName("square");
-    pieces.push(new ChessPiece(false, 3, 0, "King"));
-    pieces.push(new ChessPiece(false, 2, 1, "King"));
     //initialize pawns
     for (var i = 0; i < 8; i++) {
         pieces.push(new ChessPiece(true, 1, i, "Pawn"));
