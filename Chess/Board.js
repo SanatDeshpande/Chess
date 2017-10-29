@@ -21,11 +21,31 @@ function handleClick(sq) {
 }
 
 function movePiece(position) {
-    
+    var activePiece = null;
+    for (var i in pieces) {
+        if (pieces[i].selected) {
+            activePiece = pieces[i];
+        }
+        if (pieces[i].position == position) {
+            pieces[i].inPlay = false;
+        }
+    }
+    if (activePiece != null) {
+        activePiece.move(position);
+        activePiece.selected = false;
+    }
+    refreshBoard();
+    mapNextMoves(null);
 }
 
 function refreshBoard() {
-
+    var squares = document.getElementsByClassName("square");
+    for (var i = 0; i < squares.length; i++) {
+        squares[i].innerHTML = "";
+    }
+    for (var i in pieces) {
+        squares[pieces[i].position].innerHTML = pieces[i].encoding;
+    }
 }
 
 function mapNextMoves(piece) {

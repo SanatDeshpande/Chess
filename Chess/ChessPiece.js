@@ -22,6 +22,11 @@ function ChessPiece(isBlack, xPos, yPos, type) {
     if (type == "Pawn") {
         this.originalPosition = this.position;
     }
+    this.move = function(newPos) {
+        this.position = newPos;
+        this.xPos = newPos / 8;
+        this.yPos = newPos % 8;
+    }
     this.getPosObj = function() {
         return new posObj(this.xPos, this.yPos, this.isBlack);
     }
@@ -99,7 +104,7 @@ function flatten(x, y) {
 }
 
 function getMoves(piece) {
-    if (piece === null) {
+    if (piece === null || !piece.inPlay) {
         return;
     }
     if (piece.type == "Pawn") {
