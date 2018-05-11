@@ -1,1 +1,18 @@
-Chess Game Between 2 players. Incomplete.
+Chess Game
+
+To Do (for game itself):
+1. Set up board
+2. Code pieces
+    - this includes initial position and movement for each piece
+    - make sure no illegal moves are allowed
+3. Implement check/checkmate checking
+4. Implement players taking turns
+
+
+To Do (for playing against anybody):
+No clue how to do this yet, but make it so that people can login with a unique
+userid/password, and then be matched with other players to play.
+
+Later implement rankings and such.
+
+Long-term goal is to make an AI that can play against players.
