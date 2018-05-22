@@ -62,7 +62,6 @@ function bishopMoves(p) {
     //(+,+)
     for (var i = 1; i < 8; i++) {
         var temp = occupied([p.pos[0]+i, p.pos[1]+i]);
-        //console.log(temp, [p.pos[0]+i, p.pos[1]+i]);
         if (temp == null) {
             moves.push([p.pos[0]+i, p.pos[1]+i]);
         } else if (temp == (!p.color)) {
@@ -111,7 +110,73 @@ function bishopMoves(p) {
     return moves;
 }
 
+function rookMoves(p) {
+    var moves = [];
+    //(+, 0)
+    for (var i = 1; i < 8; i++) {
+        var temp = occupied([p.pos[0]+i, p.pos[1]]);
+        if (temp == null) {
+            moves.push([p.pos[0]+i, p.pos[1]]);
+        } else if (temp == (!p.color)) {
+            moves.push([p.pos[0]+i, p.pos[1]]);
+            break;
+        } else {
+            break;
+        }
+    }
+    //(-,0)
+    for (var i = 1; i < 8; i++) {
+        var temp = occupied([p.pos[0]-i, p.pos[1]]);
+        if (temp == null) {
+            moves.push([p.pos[0]-i, p.pos[1]]);
+        } else if (temp == (!p.color)) {
+            moves.push([p.pos[0]-i, p.pos[1]]);
+            break;
+        } else {
+            break;
+        }
+    }
+    //(0, -)
+    for (var i = 1; i < 8; i++) {
+        var temp = occupied([p.pos[0], p.pos[1]-i]);
+        if (temp == null) {
+            moves.push([p.pos[0], p.pos[1]-i]);
+        } else if (temp == (!p.color)) {
+            moves.push([p.pos[0], p.pos[1]-i]);
+            break;
+        } else {
+            break;
+        }
+    }
+    //(0, +)
+    for (var i = 1; i < 8; i++) {
+        var temp = occupied([p.pos[0], p.pos[1]+i]);
+        if (temp == null) {
+            moves.push([p.pos[0], p.pos[1]+i]);
+        } else if (temp == (!p.color)) {
+            moves.push([p.pos[0], p.pos[1]+i]);
+            break;
+        } else {
+            break;
+        }
+    }
+    return moves;
+}
 
+function knightMoves(p) {
+    var moves = [];
+    var temp;
+    var shifts = [[2, 1], [2,-1], [-2, 1], [-2, -1],
+                  [1, 2], [1, -2], [-1, 2], [-1, -2]];
+    for (var s = 0; s < shifts.length; s++) {
+        temp = occupied([p.pos[0]+shifts[s][0], p.pos[1]+shifts[s][1]]);
+        if (temp == null || temp == (!p.color)) {
+            moves.push([p.pos[0]+shifts[s][0], p.pos[1]+shifts[s][1]]);
+        }
+    }
+    console.log(moves);
+    return moves;
+}
 
 var pieces = [];
 
@@ -138,6 +203,10 @@ module.exports.getMoves = function(pos) {
         return pawnMoves(piece);
     } else if (piece.type == "B") {
         return bishopMoves(piece);
+    } else if (piece.type == "R") {
+        return rookMoves(piece);
+    } else if (piece.type == "Kn") {
+        return knightMoves(piece);
     }
     return [];
 }
