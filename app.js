@@ -46,8 +46,6 @@ io.on('connection', function(socket) {
         chess.piece("R", true, [7,0]);
         chess.piece("R", true, [7,7]);
 
-        //debug
-        chess.piece("Kn", false, [3, 3])
         //io.to(socket.id).emit("update", chess.pieceList);
         socket.emit("update", chess.pieceList);
     });

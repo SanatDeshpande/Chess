@@ -35,6 +35,9 @@ function highlight(moves) {
 function refresh(pieces) {
     var row = document.getElementsByClassName("row");
     for (var i = 0; i < pieces.length; i++) {
+        if (!pieces[i].active) {
+            continue; //ignores captured pieces
+        }
         var pos = pieces[i].pos;
         var square = row[pos[0]].getElementsByClassName("square")[pos[1]];
         square.innerHTML = pieces[i].symbol;
