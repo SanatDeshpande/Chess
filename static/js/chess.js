@@ -1,23 +1,40 @@
+var turn = {};
+
 function init() {
     initBoard();
     var socket = io();
     socket.emit("init", "ready");
-
-    socket.on("update", function(data) {
-        refresh(data);
+    socket.on("init", function(data) {
+        var color = data[1];
+        turn = {"turn": color, "color": color, "idle": true};
+        refresh(data[0]);
+        console.log("init");
     });
 }
 
-function getMoves(e) {
+/*
+    Possible statuses:
+    1. My turn, idle
+        -highlight possible moves
+    2. Their turn
+        -do nothing
+    3. My turn, highlighted
+        -move, do nothing, or revert highlightedness
+*/
+
+
+
+function requestAction(e) {
     var socket = io();
     var pos = [parseInt(e.parentElement.id), parseInt(e.id)];
-    socket.emit("getMoves", pos);
-    socket.on("update", function(moves) {
-        highlight(moves);
+    socket.emit("requestAction", [turn, pos]);
+    socket.on("action", function(action) {
+        console.log("response received");
     });
 }
 
 function highlight(moves) {
+    console.log(moves);
     var row = document.getElementsByClassName("row");
     for (var i = 0; i < row.length; i++) {
         var squares = row[i].getElementsByClassName("square");
@@ -30,7 +47,6 @@ function highlight(moves) {
         }
     }
 }
-
 
 function refresh(pieces) {
     var row = document.getElementsByClassName("row");

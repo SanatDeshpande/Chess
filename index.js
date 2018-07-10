@@ -6,7 +6,10 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 var chess = require('./Piece.js')
-var turn = true; //initially white's turn
+
+var turn = false;
+
+var PORT = process.env.PORT || 8000;
 
 app.use(express.static(__dirname + "/static")); //lets us push js and css to client
 
@@ -14,8 +17,9 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + "/chess.html");
 });
 
-server.listen(8000, function() {
+server.listen(PORT, function() {
     console.log("listening");
+    console.log(PORT);
 });
 
 io.on('connection', function(socket) {
@@ -46,13 +50,17 @@ io.on('connection', function(socket) {
         chess.piece("R", true, [7,0]);
         chess.piece("R", true, [7,7]);
 
-        //io.to(socket.id).emit("update", chess.pieceList);
-        socket.emit("update", chess.pieceList);
+        io.to(socket.id).emit("init", [chess.pieceList, turn]);
+        turn = !turn;
+        //socket.emit("update", chess.pieceList);
     });
 
-    socket.on("getMoves", function(pos) {
-        var moves = chess.getMoves(pos); //gets coordinates of legit moves
-        //io.to(socket.id).emit("update");
-        socket.emit("update", moves);
+    socket.on("requestAction", function(data) {
+        var data = data[0];
+        var pos = data[1];
+
+        if(data["turn"] && data["idle"]) {
+            io.to(socket.id).emit("action", ["highligt"]);
+        }
     });
 });

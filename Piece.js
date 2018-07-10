@@ -207,7 +207,7 @@ module.exports.piece = function(type, color, pos) {
     return p;
 }
 
-module.exports.getMoves = function(pos) {
+module.exports.getMoves = function() {
     var piece = null;
 
     for (var i = 0; i < pieces.length; i++) {
