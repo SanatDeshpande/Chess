@@ -1,15 +1,5 @@
-var turn = {};
-
 function init() {
     initBoard();
-    var socket = io();
-    socket.emit("init", "ready");
-    socket.on("init", function(data) {
-        var color = data[1];
-        turn = {"turn": color, "color": color, "idle": true};
-        refresh(data[0]);
-        console.log("init");
-    });
 }
 
 /*
@@ -25,12 +15,7 @@ function init() {
 
 
 function requestAction(e) {
-    var socket = io();
-    var pos = [parseInt(e.parentElement.id), parseInt(e.id)];
-    socket.emit("requestAction", [turn, pos]);
-    socket.on("action", function(action) {
-        console.log("response received");
-    });
+    console.log(e);
 }
 
 function highlight(moves) {
@@ -48,17 +33,7 @@ function highlight(moves) {
     }
 }
 
-function refresh(pieces) {
-    var row = document.getElementsByClassName("row");
-    for (var i = 0; i < pieces.length; i++) {
-        if (!pieces[i].active) {
-            continue; //ignores captured pieces
-        }
-        var pos = pieces[i].pos;
-        var square = row[pos[0]].getElementsByClassName("square")[pos[1]];
-        square.innerHTML = pieces[i].symbol;
-    }
-}
+
 
 function initBoard() {
     var row = document.getElementsByClassName("row");

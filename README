@@ -1,5 +1,8 @@
 Chess Game
 
+
+New Branch - make simpler
+
 To Do (for game itself):
 1. Set up turns between players.
 2. Implement actually moving pieces.
