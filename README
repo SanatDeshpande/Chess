@@ -1,25 +1,7 @@
 Chess Game
 
 
-New Branch - make simpler
+Chess game that lets players play against each other or an AI.
 
-To Do (for game itself):
-1. Set up turns between players.
-2. Implement actually moving pieces.
-3. Implement a block for placing oneself in 'check' (or making a move in check)
-4. Implement a check for 'checkmate' (should be easy after previous one).
-5. Place a div at the bottom of the screen informing users of relevant game
-   information.
-
-To Do (for 2 sessions):
-1. Support 2 independent sessions playing against one another.
-2. Let players decide black/white (otherwise random).
-
-
-To Do (for playing against anybody):
-No clue how to do this yet, but make it so that people can login with a unique
-userid/password, and then be matched with other players to play.
-
-Later implement rankings and such.
-
-Long-term goal is to make an AI that can play against players.
+Also learning how to use Docker.
+Also learning how to use Go.
