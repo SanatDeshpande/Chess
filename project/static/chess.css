@@ -1,0 +1,15 @@
+div.chessboard {
+    height: 560px;
+    width: 560px;
+}
+div.square {
+    height: 70px;
+    width: 60px;
+    background-color: #ffffff;
+    border: solid;
+    border-width: 0px;
+    float: left;
+    font-size: 50px;
+    font-weight: bold;
+    text-align: center;
+}
