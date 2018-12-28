@@ -21,7 +21,8 @@ from django.conf import settings
 from chess import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    #path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-    path('test/', views.test, name='test'),
+    path('init/', views.init, name='init'),
+    path('action/', views.action, name='request_action'),
 ]
