@@ -31,7 +31,6 @@ function getUserIdFromURL() {
     return window.location.href.split("game/")[1];
 }
 
-
 function initBoard() {
     var row = document.getElementsByClassName("row");
     var black = true;
@@ -62,6 +61,7 @@ function refresh(board) {
 }
 
 function highlight(board) {
+    console.log("called");
     var row = document.getElementsByClassName("row");
 
     for (var i = 0; i < row.length; i++) {
@@ -70,6 +70,7 @@ function highlight(board) {
             squares[j].style.backgroundColor = "22ff22";
         }
     }
+    console.log("ended");
 }
 
 function numToUnicode(num) {
@@ -101,20 +102,19 @@ function unicodeToNum(code) {
 }
 
 function requestAction(e) {
-    request = {
-        "user": userId,
+    selected = {
         "selected": [parseInt(e.parentElement.id), parseInt(e.id)],
     };
-
     fetch("http://localhost:8000/action/" + getUserIdFromURL() + "/",
     {
         method: "POST",
-        body: JSON.stringify(request)
+        body: JSON.stringify(selected)
     })
     .then(function(response) {
         return response.json();
     })
     .then(function(data) {
-        //TODO
+        highlight(data);
+        console.log(data);
     });
 }

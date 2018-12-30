@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-from .models import Game
+from .models import Game, Piece
 
 # Create your views here.
 
@@ -28,7 +28,7 @@ def init(request):
 def game_state(request, user_id):
     game = Game.getGameByUserId(user_id)
     return JsonResponse(game.getBoardState(
-                        white=game.getUserColor(user_id)))
+                        white=game.getUser(user_id)["white"]))
 
 
 @csrf_exempt
@@ -55,4 +55,22 @@ def join(request, game_id):
 
 @csrf_exempt
 def action(request, user_id):
-    return HttpResponse(status=200)
+    game = Game.getGameByUserId(user_id)
+    move = json.loads(request.body)['selected']
+    user = game.getUser(user_id)
+    board = game.board
+
+    if Piece.isValid(board, move, user_id):
+        #handle moving logic
+
+        #handle highlighting logic
+        moves = Piece.dispatch(board, move)
+        for m in moves:
+            game.highlight[m[0]][m[1]] = 1
+
+        if not user["white"]:
+            game.hightlight = Piece.reverse(game.highlight)
+
+        user["idle"] = False
+
+    return JsonResponse(game.getBoardState(white=user["white"]))

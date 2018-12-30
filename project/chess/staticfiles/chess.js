@@ -31,7 +31,6 @@ function getUserIdFromURL() {
     return window.location.href.split("game/")[1];
 }
 
-
 function initBoard() {
     var row = document.getElementsByClassName("row");
     var black = true;
@@ -62,14 +61,18 @@ function refresh(board) {
 }
 
 function highlight(board) {
+    console.log("called");
     var row = document.getElementsByClassName("row");
 
     for (var i = 0; i < row.length; i++) {
         var squares = row[i].getElementsByClassName("square");
         for (var j = 0; j < squares.length; j++) {
-            squares[j].style.backgroundColor = "22ff22";
+            if (board[i][j] == 1) {
+                squares[j].style.backgroundColor = "#22ff22";
+            }
         }
     }
+    console.log("ended");
 }
 
 function numToUnicode(num) {
@@ -113,6 +116,7 @@ function requestAction(e) {
         return response.json();
     })
     .then(function(data) {
+        highlight(data["highlight"]);
         console.log(data);
     });
 }
