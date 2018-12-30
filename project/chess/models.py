@@ -63,3 +63,36 @@ class Game:
             "game_id": self.game_id,
             "highlight": self.highlight,
         }
+
+class Piece:
+    @classmethod
+    def validate(cls, board, move, user_id):
+        pass
+
+    @classmethod
+    def dispatch(cls, board, move):
+        pass
+
+    @classmethod
+    def pawn(cls):
+        pass
+
+    @classmethod
+    def rook(cls):
+        pass
+
+    @classmethod
+    def bishop(cls):
+        pass
+
+    @classmethod
+    def knight(cls):
+        pass
+
+    @classmethod
+    def king(cls):
+        pass
+
+    @classmethod
+    def queen(cls):
+        pass

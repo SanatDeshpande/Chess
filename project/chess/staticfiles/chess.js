@@ -101,20 +101,18 @@ function unicodeToNum(code) {
 }
 
 function requestAction(e) {
-    request = {
-        "user": userId,
+    selected = {
         "selected": [parseInt(e.parentElement.id), parseInt(e.id)],
     };
-
     fetch("http://localhost:8000/action/" + getUserIdFromURL() + "/",
     {
         method: "POST",
-        body: JSON.stringify(request)
+        body: JSON.stringify(selected)
     })
     .then(function(response) {
         return response.json();
     })
     .then(function(data) {
-        //TODO
+        console.log(data);
     });
 }
