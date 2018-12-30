@@ -22,7 +22,7 @@ class Game:
         self.game_id = str(uuid.uuid4())
         self.users = [{"user_id": str(uuid.uuid4()), "white": True, "registered": False},
                       {"user_id": str(uuid.uuid4()), "white": False, "registered": False}]
-        print(self.users[0]['user_id'], self.users[1]['user_id'], self.game_id)
+
     @classmethod
     def initialize(cls):
         g = cls()
@@ -41,9 +41,25 @@ class Game:
     def getGameByGameId(cls, game_id):
         return cls.games[game_id]
 
-    def getBoardState(self):
+    def getUserColor(self, user_id):
+        if self.users[0]['user_id'] == user_id:
+            return self.users[0]['white']
+        elif self.users[1]['user_id'] == user_id:
+            return self.users[1]['white']
+        else:
+            return None
+
+    def getBoardState(self, white=True):
+        response_board = [[0]*8 for i in range(8)]
+        if not white:
+            for i in range(len(self.board)):
+                for j in range(len(self.board[0])):
+                    response_board[i][j] = self.board[7-i][7-j]
+        else:
+            response_board = self.board
+
         return {
-            "board": self.board,
+            "board": response_board,
             "game_id": self.game_id,
             "highlight": self.highlight,
         }

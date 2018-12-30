@@ -27,7 +27,8 @@ def init(request):
 @csrf_exempt
 def game_state(request, user_id):
     game = Game.getGameByUserId(user_id)
-    return JsonResponse(game.getBoardState())
+    return JsonResponse(game.getBoardState(
+                        white=game.getUserColor(user_id)))
 
 
 @csrf_exempt
