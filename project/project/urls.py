@@ -23,6 +23,10 @@ from chess import views
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-    path('init/', views.init, name='init'),
-    path('action/', views.action, name='request_action'),
+    path('game/<slug:user_id>', views.game, name='game'),
+    path('game_state/<slug:user_id>', views.game_state, name='game_state'),
+    path('init/', views.init, name='init'), #get init configuration
+    path('action/<slug:user_id>/', views.action, name='request_action'),
+    path('register_user/<slug:user_id>/', views.register_user, name='register_user'),
+    path('join/<slug:game_id>/', views.join, name='join'),
 ]

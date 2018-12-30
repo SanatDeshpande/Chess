@@ -13,3 +13,6 @@ div.square {
     font-weight: bold;
     text-align: center;
 }
+div.code {
+    float: left;
+}

@@ -1,20 +1,36 @@
-var state = {
-    "board": null,
-    "idle": true,
-    "white_turn": false,
-}
-
 function init() {
     initBoard();
-    fetch("http://localhost:8000/init", {method: "GET"})
-    .then(function(response) {
-        return response.json()
-    })
-    .then(function(data) {
-        state["board"] = data["board"];
-        refresh(state["board"]);
-    });
+    if (!window.location.href.includes("game")) {
+        fetch("http://localhost:8000/init", {method: "GET"})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            window.location.replace("http://localhost:8000/game/" + data["user"]["user_id"]);
+        });
+    } else {
+        fetch("http://localhost:8000/game_state/" + getUserIdFromURL(), {method: "GET"})
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            console.log(data);
+            refresh(data["board"]);
+            return data;
+        }).then(function(data) {
+            document.getElementsByClassName("sharetext")[0].innerHTML = "<h1>Share Link for 2-Player:</h1>";
+            var code = data["game_id"];
+            var link = "http://localhost:8000/join/" + code + "/";
+            var text = "<h3>" + link + " </h3>";
+            document.getElementsByClassName("code")[0].innerHTML = text;
+        });
+    }
 }
+
+function getUserIdFromURL() {
+    return window.location.href.split("game/")[1];
+}
+
 
 function initBoard() {
     var row = document.getElementsByClassName("row");
@@ -65,7 +81,6 @@ function numToUnicode(num) {
         num += 6;
     }
     num += 11;
-    unicodeToNum("&#98" + num.toString());
     return "&#98" + num.toString();
 }
 
@@ -85,8 +100,17 @@ function unicodeToNum(code) {
     return num;
 }
 
-function requestAction(element) {
-    fetch("http://localhost:8000/action", {method: "GET"})
+function requestAction(e) {
+    request = {
+        "user": userId,
+        "selected": [parseInt(e.parentElement.id), parseInt(e.id)],
+    };
+
+    fetch("http://localhost:8000/action/" + getUserIdFromURL() + "/",
+    {
+        method: "POST",
+        body: JSON.stringify(request)
+    })
     .then(function(response) {
         return response.json();
     })
