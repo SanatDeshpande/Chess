@@ -60,17 +60,44 @@ def action(request, user_id):
     user = game.getUser(user_id)
     board = game.board
 
-    if Piece.isValid(board, move, user_id):
-        #handle moving logic
+    if Piece.canSelect(board, move, user_id):
+        moves = Piece.dispatch(board, move, user_id)
 
-        #handle highlighting logic
-        moves = Piece.dispatch(board, move)
-        for m in moves:
-            game.highlight[m[0]][m[1]] = 1
+        #get other user_id
+        #simulate one of moves
+        #
+
+        if len(moves) > 0:
+            for m in moves:
+                game.highlight[m[0]][m[1]] = 1
+
+            if not user["white"]:
+                game.hightlight = Piece.reverse(game.highlight)
+
+            user["idle"] = False
+            game.active = move
+    elif Piece.canMove(game.highlight, move, user_id):
+        if not user["white"]:
+            game.board = Piece.reverse(game.board)
+
+        #moves piece
+        game.board[move[0]][move[1]] = game.board[game.active[0]][game.active[1]]
+        game.board[game.active[0]][game.active[1]] = 0
+        game.white_turn = not game.white_turn
+
+        #resets states
+        game.highlight = [[0]*8 for i in range(8)]
+        user["idle"] = True
 
         if not user["white"]:
-            game.hightlight = Piece.reverse(game.highlight)
-
-        user["idle"] = False
+            game.board = Piece.reverse(game.board)
+    elif game.active == move:
+        if not user["white"]:
+            game.board = Piece.reverse(game.board)
+        #resets states
+        game.highlight = [[0]*8 for i in range(8)]
+        user["idle"] = True
+        if not user["white"]:
+            game.board = Piece.reverse(game.board)
 
     return JsonResponse(game.getBoardState(white=user["white"]))

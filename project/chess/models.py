@@ -19,6 +19,7 @@ class Game:
         self.highlight = [[0]*8 for i in range(8)]
         self.white_turn = True
         self.game_id = str(uuid.uuid4())
+        self.active = None
         self.users = [{"user_id": str(uuid.uuid4()), "white": True, "registered": False, "idle": True},
                       {"user_id": str(uuid.uuid4()), "white": False, "registered": False, "idle": True}]
 
@@ -66,21 +67,38 @@ class Game:
 
 class Piece:
     @classmethod
-    def isValid(cls, board, move, user_id):
+    def canSelect(cls, board, move, user_id):
         game = Game.getGameByUserId(user_id)
         user = game.getUser(user_id)
 
         if not user["white"]:
-            board = Piece.reverse()
+            move = [7-m for m in move]
 
-        if game.white_turn == user["white"] and user["idle"] and board[move[0]][move[1]] > 0:
-            return True
+        if game.white_turn == user["white"] and user["idle"]:
+            if board[move[0]][move[1]] == 0:
+                return False
+            selected = True if board[move[0]][move[1]] > 0 else False
+            if user["white"] == selected:
+                return True
+        return False
+
+    @classmethod
+    def canMove(cls, board, move, user_id):
+        game = Game.getGameByUserId(user_id)
+        user = game.getUser(user_id)
+
+        if game.white_turn == user["white"] and not user["idle"]:
+            if board[move[0]][move[1]] == 1:
+                return True
 
         return False
 
     @classmethod
-    def dispatch(cls, board, move):
-        if board[move[0]][move[1]] < 0:
+    def dispatch(cls, board, move, user_id):
+        game = Game.getGameByUserId(user_id)
+        user = game.getUser(user_id)
+
+        if not user["white"]:
             board = Piece.reverse(board)
 
         pieces = {
@@ -103,37 +121,118 @@ class Piece:
                 moves.append([move[0] - 1, move[1]])
                 if board[move[0] - 2][move[1]] == 0:
                     moves.append([move[0] - 2, move[1]])
-        else:
-            if Piece.diffSign(board[move[0] - 1][move[1] - 1], board[move[0]][move[1]]):
-                moves.append([move[0] - 1, move[1] - 1])
-            if Piece.diffSign(board[move[0] - 1][move[1] + 1], board[move[0]][move[1]]):
-                moves.append([move[0] - 1, move[1] + 1])
+
+        if Piece.inBounds(board, move, x=-1, y=-1) and Piece.isOtherColor(board, move, x=-1, y=-1):
+            moves.append([move[0] - 1, move[1] - 1])
+        if Piece.inBounds(board, move, x=-1, y=1) and Piece.isOtherColor(board, move, x=-1, y=1):
+            moves.append([move[0] - 1, move[1] + 1])
+        if Piece.inBounds(board, move, x=-1, y=0) and Piece.isOtherColor(board, move, x=-1, y=0) is None:
+            moves.append([move[0]-1, move[1]])
         return moves
 
     @classmethod
-    def rook(cls, board, movels):
+    def rook(cls, board, move):
         print("rook")
-        pass
+        moves = []
+        for i in range(1, 8):
+            if Piece.inBounds(board, move, x=i, y=0):
+                other = Piece.isOtherColor(board, move, x=i, y=0)
+                if other or other is None:
+                    moves.append([move[0]+i, move[1]])
+                if other is not None:
+                    break
+        for i in range(-1, -8, -1):
+            if Piece.inBounds(board, move, x=i, y=0):
+                other = Piece.isOtherColor(board, move, x=i, y=0)
+                if other or other is None:
+                    moves.append([move[0]+i, move[1]])
+                if other is not None:
+                    break
+        for i in range(1, 8):
+            if Piece.inBounds(board, move, x=0, y=i):
+                other = Piece.isOtherColor(board, move, x=0, y=i)
+                if other or other is None:
+                    moves.append([move[0], move[1]+i])
+                if other is not None:
+                    break
+        for i in range(-1, -8, -1):
+            if Piece.inBounds(board, move, x=0, y=i):
+                other = Piece.isOtherColor(board, move, x=0, y=i)
+                if other or other is None:
+                    moves.append([move[0], move[1]+i])
+                if other is not None:
+                    break
+        return moves
 
     @classmethod
     def bishop(cls, board, move):
         print("bishop")
-        pass
+        moves = []
+        for i in range(1, 8):
+            if Piece.inBounds(board, move, x=i, y=i):
+                other = Piece.isOtherColor(board, move, x=i, y=i)
+                if other or other is None:
+                    moves.append([move[0]+i, move[1]+i])
+                if other is not None:
+                    break
+        for i in range(1, 8):
+            if Piece.inBounds(board, move, x=-1*i, y=-1*i):
+                other = Piece.isOtherColor(board, move, x=-1*i, y=-1*i)
+                if other or other is None:
+                    moves.append([move[0]-i, move[1]-i])
+                if other is not None:
+                    break
+        for i in range(1, 8):
+            if Piece.inBounds(board, move, x=-1*i, y=i):
+                other = Piece.isOtherColor(board, move, x=-1*i, y=i)
+                if other or other is None:
+                    moves.append([move[0]-i, move[1]+i])
+                if other is not None:
+                    break
+        for i in range(1, 8):
+            if Piece.inBounds(board, move, x=i, y=-1*i):
+                other = Piece.isOtherColor(board, move, x=i, y=-1*i)
+                if other or other is None:
+                    moves.append([move[0]+i, move[1]-i])
+                if other is not None:
+                    break
+        return moves
 
     @classmethod
     def knight(cls, board, move):
         print("knight")
-        pass
+        change = [-2, 2, -1, 1]
+        moves = []
+        for i in change:
+            for j in change:
+                if abs(i) != abs(j):
+                    if Piece.inBounds(board, move, x=i, y=j):
+                        other = Piece.isOtherColor(board, move, x=i, y=j)
+                        if other or other is None:
+                            moves.append([move[0]+i, move[1]+j])
+        return moves
 
     @classmethod
     def king(cls, board, move):
         print("king")
-        pass
+        change = [-1, 0, 1]
+        moves = []
+        for i in change:
+            for j in change:
+                if not (i == 0 and j == 0):
+                    if Piece.inBounds(board, move, x=i, y=j):
+                        other = Piece.isOtherColor(board, move, x=i, y=j)
+                        if other or other is None:
+                            moves.append([move[0]+i, move[1]+j])
+        return moves
 
     @classmethod
     def queen(cls, board, move):
         print("queen")
-        pass
+        moves = []
+        moves += cls.bishop(board, move)
+        moves += cls.rook(board, move)
+        return moves
 
     @classmethod
     def reverse(cls, board):
@@ -144,7 +243,15 @@ class Piece:
         return response_board
 
     @classmethod
-    def diffSign(cls, x, y):
-        if x < 0 and y < 0 or x > 0 and y > 0:
+    def inBounds(cls, board, move, x=0, y=0):
+        new_pos = [move[0]+x, move[1]+y]
+        if new_pos[0] < 0 or new_pos[0] > 7 or new_pos[1] < 0 or new_pos[1] > 7:
             return False
         return True
+
+    @classmethod
+    def isOtherColor(cls, board, move, x=0, y=0):
+        new_pos = [move[0]+x, move[1]+y]
+        if board[new_pos[0]][new_pos[1]] * board[move[0]][move[1]] == 0:
+            return None
+        return board[new_pos[0]][new_pos[1]] * board[move[0]][move[1]] < 0

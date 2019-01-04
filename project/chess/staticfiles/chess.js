@@ -14,8 +14,7 @@ function init() {
             return response.json();
         })
         .then(function(data) {
-            console.log(data);
-            refresh(data["board"]);
+            setInterval(refresh, 2000);
             return data;
         }).then(function(data) {
             document.getElementsByClassName("sharetext")[0].innerHTML = "<h1>Share Link for 2-Player:</h1>";
@@ -49,15 +48,22 @@ function initBoard() {
     }
 }
 
-function refresh(board) {
-    var row = document.getElementsByClassName("row");
+function refresh() {
+    fetch("http://localhost:8000/game_state/" + getUserIdFromURL(), {method: "GET"})
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        board = data["board"];
+        var row = document.getElementsByClassName("row");
 
-    for (var i = 0; i < row.length; i++) {
-        var squares = row[i].getElementsByClassName("square");
-        for (var j = 0; j < squares.length; j++) {
-            squares[j].innerHTML = numToUnicode(board[i][j]);
+        for (var i = 0; i < row.length; i++) {
+            var squares = row[i].getElementsByClassName("square");
+            for (var j = 0; j < squares.length; j++) {
+                squares[j].innerHTML = numToUnicode(board[i][j]);
+            }
         }
-    }
+    });
 }
 
 function highlight(board) {
@@ -103,7 +109,9 @@ function unicodeToNum(code) {
     return num;
 }
 
+
 function requestAction(e) {
+    //really, request highlight
     selected = {
         "selected": [parseInt(e.parentElement.id), parseInt(e.id)],
     };
@@ -116,6 +124,7 @@ function requestAction(e) {
         return response.json();
     })
     .then(function(data) {
+        initBoard();
         highlight(data["highlight"]);
         console.log(data);
     });
