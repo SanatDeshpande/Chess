@@ -69,16 +69,16 @@ function refresh() {
 function highlight(board) {
     console.log("called");
     var row = document.getElementsByClassName("row");
-
     for (var i = 0; i < row.length; i++) {
         var squares = row[i].getElementsByClassName("square");
         for (var j = 0; j < squares.length; j++) {
             if (board[i][j] == 1) {
                 squares[j].style.backgroundColor = "#22ff22";
+            } else if (board[i][j] == 2) {
+                squares[j].style.backgroundColor = "#ff2222";
             }
         }
     }
-    console.log("ended");
 }
 
 function numToUnicode(num) {

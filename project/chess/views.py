@@ -62,14 +62,10 @@ def action(request, user_id):
 
     if Piece.canSelect(board, move, user_id):
         moves = Piece.dispatch(board, move, user_id)
-
-        #get other user_id
-        #simulate one of moves
-        #
-
         if len(moves) > 0:
             for m in moves:
                 game.highlight[m[0]][m[1]] = 1
+
 
             if not user["white"]:
                 game.hightlight = Piece.reverse(game.highlight)

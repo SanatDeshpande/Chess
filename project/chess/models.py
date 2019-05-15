@@ -113,6 +113,27 @@ class Piece:
         return pieces[tile](board, move)
 
     @classmethod
+    def otherTeamMoves(cls, board, user_id):
+        #get other user_id
+        game = Game.getGameByUserId(user_id)
+        user = game.getUser(user_id)
+        other_user_id = game.users[0]["user_id"]
+        if game.users[0]["user_id"] == user_id:
+            other_user_id = game.users[1]["user_id"]
+        other_user = game.getUser(other_user_id)
+
+        if not other_user["white"]:
+            board = Piece.reverse(board)
+
+        moves = []
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if board[i][j] < 0 and not other_user["white"] or board[i][j] > 0 and other_user["white"]:
+                    moves += cls.dispatch(board, [i,j], other_user_id)
+        return moves
+
+
+    @classmethod
     def pawn(cls, board, move):
         print("pawn")
         moves = []
