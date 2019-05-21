@@ -74,7 +74,6 @@ function refresh() {
 }
 
 function highlight(board) {
-    console.log("called");
     var row = document.getElementsByClassName("row");
     for (var i = 0; i < row.length; i++) {
         var squares = row[i].getElementsByClassName("square");
@@ -125,7 +124,10 @@ function requestAction(e) {
     fetch("http://localhost:5000/action/" + getUserIdFromURL() + "/",
     {
         method: "POST",
-        body: JSON.stringify(selected)
+        body: JSON.stringify(selected),
+        headers: {
+            'Content-Type': 'application/json'
+        }
     })
     .then(function(response) {
         return response.json();

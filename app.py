@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from uuid import uuid4
 from Game import Game
+from Piece import Piece
 import copy
 
 app = Flask(__name__)
@@ -29,10 +30,10 @@ def get_game_state(user_id):
     game_id = Game.users[user_id]
     data = copy.deepcopy(Game.games[game_id])
 
-    #which user?
-    index = 0 if data['user'][0]['user_id'] == user_id else 1
+    data = Game.filter_user(data, user_id)
 
-    data['user'] = data['user'][index]
+    if not data['user']['white']:
+        data['board'] = Game.flip_board(data['board'])
 
     return jsonify(data)
 
@@ -45,6 +46,31 @@ def join_player(game_id):
         Game.games[game_id]['full'] = True
 
     return redirect(url_for('game', user_id=data['user']['user_id']))
+
+@app.route('/action/<user_id>/', methods=['POST'])
+def get_action(user_id):
+    game_id = Game.users[user_id]
+    data = copy.deepcopy(Game.games[game_id])
+    data = Game.filter_user(data, user_id)
+
+    #don't do anything if it's not your turn
+    if data['white_turn'] != data['user']['white']:
+        return jsonify(data)
+
+    #if black, flip both boards
+    if not data['user']['white']:
+        data['board'] = Game.flip_board(data['board'])
+        data['highlight'] = Game.flip_board(data['highlight'])
+
+    #if highlighted, move there
+    #else re-highlight
+    moves = Piece.get_moves(data, request.json['selected'])
+    data['highlight'] = Game.clear_highlight()
+    for m in moves:
+        data['highlight'][m[0]][m[1]] = 1
+
+
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run()
