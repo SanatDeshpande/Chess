@@ -11,11 +11,13 @@ class Game:
             'user': [
                 {
                     'white': True,
-                    'user_id': str(uuid4())
+                    'user_id': str(uuid4()),
+                    'prev': (-1, -1)
                 },
                 {
                     'white': False,
-                    'user_id': str(uuid4())
+                    'user_id': str(uuid4()),
+                    'prev': (-1, -1)
                 }
             ],
             'white_turn': True,
@@ -25,7 +27,7 @@ class Game:
                 [-6, -6, -6, -6, -6, -6, -6, -6],
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 4, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [6, 6, 6, 6, 6, 6, 6, 6],
                 [3, 5, 4, 1, 2, 4, 5, 3],
@@ -62,3 +64,11 @@ class Game:
     @staticmethod
     def clear_highlight():
         return [[0 for i in range(8)] for i in range(8)]
+
+    @staticmethod
+    def in_bounds(position):
+        x = position[0]
+        y = position[1]
+        if x > 7 or x < 0 or y > 7 or y < 0:
+            return False
+        return True
