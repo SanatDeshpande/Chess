@@ -61,6 +61,16 @@ function refresh() {
         return response.json();
     })
     .then(function(data) {
+        if (data['user']['white'] && data['white_checkmate'] == true) {
+            alert('YOU WON');
+        } else if (!data['user']['white'] && data['white_checkmate'] == false) {
+            alert('YOU WON');
+        } else if (data['user']['white'] && data['white_checkmate'] == false) {
+            alert('YOU LOST');
+        } else if (!data['user']['white'] && data['white_checkmate'] == true) {
+            alert('YOU LOST');
+        }
+
         board = data["board"];
         var row = document.getElementsByClassName("row");
 
@@ -117,7 +127,7 @@ function unicodeToNum(code) {
 
 
 function requestAction(e) {
-    //really, request highlight
+    //really, it's to request highlight
     selected = {
         "selected": [parseInt(e.parentElement.id), parseInt(e.id)],
     };
@@ -137,4 +147,7 @@ function requestAction(e) {
         highlight(data["highlight"]);
         console.log(data);
     });
+
+    //registers checkmate status
+    fetch("http://localhost:5000/checkmate/" + getUserIdFromURL() + "/", {method: "GET"});
 }
