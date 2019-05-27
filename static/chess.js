@@ -14,7 +14,7 @@ function init() {
             return response.json();
         })
         .then(function(data) {
-            setInterval(refresh, 2000);
+            setInterval(refresh, 100);
             return data;
         }).then(function(data) {
             console.log(data);
