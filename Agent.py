@@ -14,12 +14,12 @@ class Agent(Solution):
             'linear': lambda x: x,
             'sigmoid': lambda x: 1 / (1 + np.exp(-1 * x)),
             'tanh': lambda x: np.tanh(x),
-            'relu': lambda x: np.max(0, x),
+            'relu': lambda x: max(0, x),
             'gaussian': lambda x: (1 / np.sqrt(2 * np.pi)) * np.exp((-1 * np.power(x, 2)) / 2),
             'step': lambda x: 1 if x >= 0 else 0,
             'sin': lambda x: np.sin(x),
             'cos': lambda x: np.cos(x),
-            'inverse': lambda x: 1 / x,
+            'inverse': lambda x: 1 / (x + 1e-9),
         }
 
         self.nodes = {i:self.activations['linear'] for i in range(input_size)}
@@ -35,26 +35,60 @@ class Agent(Solution):
             self.graph[c_to].add(c_from)
 
     def add_connection(self):
-        connected = False
-        while not connected:
-            choices = sorted(list(self.nodes))
-            connection_from = np.random.choice(choices, 1)[0]
-            connection_to = np.random.choice(choices[self.input_size:], 1)[0]
+        while True:
+            input_nodes = set([i for i in range(self.input_size)])
+            output_nodes = set([i for i in range(self.input_size, self.input_size + self.output_size)])
+            other_nodes = set([i for i in self.nodes]).difference(input_nodes)
+            other_nodes = other_nodes.difference(output_nodes)
 
-            graph_copy = copy.deepcopy(self.graph)
+            input_pool = input_nodes.union(other_nodes)
+            output_pool = output_nodes.union(other_nodes)
 
-            if connection_from in graph_copy[connection_to]:
-                continue
-            graph_copy[connection_to].add(connection_from)
+            connection_from = np.random.choice(list(input_pool), 1)[0]
+            if connection_from in output_pool:
+                output_pool.remove(connection_from)
+            connection_to = np.random.choice(list(output_pool), 1)[0]
 
             try:
-                toposort_flatten(graph_copy)
                 self.graph[connection_to].add(connection_from)
-                connected = True
+                toposort_flatten(self.graph)
+                break
             except:
-                continue
+                self.graph[connection_to].remove(connection_from)
 
-agent = Agent(30, 5, Problem(1, 3))
-print(agent.graph)
-agent.add_connection()
-print(agent.graph)
+    def add_node(self):
+        new_node = len(self.nodes)
+        new_activation = np.random.choice(list(self.activations), 1)[0]
+        self.nodes[new_node] = self.activations[new_activation]
+
+        eligible = [i for i in list(self.graph) if len(self.graph[i]) > 0]
+        key = np.random.choice(eligible, 1)[0]
+        replaced = np.random.choice(list(self.graph[key]), 1)[0]
+
+        self.graph[key].remove(replaced)
+        self.graph[key].add(new_node)
+
+        self.graph[new_node] = set([replaced])
+
+    def change_activation(self):
+        choice = np.random.choice(sorted(list(self.nodes)), 1)[0]
+        new_activation = np.random.choice(list(self.activations), 1)[0]
+        self.nodes[choice] = self.activations[new_activation]
+
+    def mutate(self):
+        mutation_list = [self.add_connection, self.add_node, self.change_activation]
+        mutation = np.random.choice(mutation_list, 1)[0]
+        mutation()
+
+    def forward(self, weight, inputs):
+        assert len(inputs) == self.input_size
+
+        output_nodes = set([i for i in range(self.input_size, self.input_size + self.output_size)])
+        output_nodes = list(output_nodes)
+        return [self.recursive_pass(output_nodes[i], inputs) for i in range(self.output_size)]
+
+    def recursive_pass(self, i, inputs):
+        if i < self.input_size:
+            return inputs[i]
+        activation = self.nodes[i]
+        return activation(sum([self.recursive_pass(subnode, inputs) for subnode in self.graph[i]]))
