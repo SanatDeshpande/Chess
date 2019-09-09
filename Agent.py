@@ -4,11 +4,12 @@ import numpy as np
 from toposort import toposort_flatten
 import copy
 
-class Agent(Solution):
+class Agent():
     def __init__(self, input_size, output_size, *args, **kwargs):
-        super(Agent, self).__init__(*args, **kwargs)
         self.input_size = input_size
         self.output_size = output_size
+        self.performance = {}
+        self.criterion = None
 
         self.activations = {
             'linear': lambda x: x,
