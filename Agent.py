@@ -13,7 +13,7 @@ class Agent():
 
         self.activations = {
             'linear': lambda x: x,
-            'sigmoid': lambda x: 1 / (1 + np.exp(-1 * x)),
+            'sigmoid': lambda x: max(0,x)/10 if x < -10 or x > 10 else 1 / (1 + np.exp(-1 * x)),
             'tanh': lambda x: np.tanh(x),
             'relu': lambda x: max(0, x),
             'gaussian': lambda x: (1 / np.sqrt(2 * np.pi)) * np.exp((-1 * np.power(x, 2)) / 2),
@@ -21,6 +21,7 @@ class Agent():
             'sin': lambda x: np.sin(x),
             'cos': lambda x: np.cos(x),
             'inverse': lambda x: 1 / (x + 1e-9),
+            'abs': lambda x: np.abs(x),
         }
 
         self.nodes = {i:self.activations['linear'] for i in range(input_size)}
@@ -34,6 +35,8 @@ class Agent():
 
         for c_to, c_from in zip(connections_to, connections_from):
             self.graph[c_to].add(c_from)
+
+        self.forward_graph = self.get_forward_graph()
 
     def add_connection(self):
         while True:
@@ -80,16 +83,38 @@ class Agent():
         mutation_list = [self.add_connection, self.add_node, self.change_activation]
         mutation = np.random.choice(mutation_list, 1)[0]
         mutation()
+        self.forward_graph = self.get_forward_graph()
 
     def forward(self, weight, inputs):
         assert len(inputs) == self.input_size
 
-        output_nodes = set([i for i in range(self.input_size, self.input_size + self.output_size)])
-        output_nodes = list(output_nodes)
-        return [self.recursive_pass(output_nodes[i], inputs) for i in range(self.output_size)]
+        topo_graph = toposort_flatten(self.graph)
+        sums = {i:0 for i in range(len(self.nodes))}
+        for count, i in enumerate(inputs):
+            sums[count] = i
+
+        for i in topo_graph:
+            activation = self.nodes[i]
+            value = weight * activation(sums[i])
+            for j in self.forward_graph[i]:
+                sums[j] += value
+
+        output_nodes = [i for i in range(self.input_size, self.input_size + self.output_size)]
+        return [sums[i] for i in output_nodes]
 
     def recursive_pass(self, i, inputs):
+        self.inputs = []
         if i < self.input_size:
             return inputs[i]
         activation = self.nodes[i]
         return activation(sum([self.recursive_pass(subnode, inputs) for subnode in self.graph[i]]))
+
+    def get_forward_graph(self):
+        forward_graph = {i:set([]) for i in list(self.nodes)}
+        for k, v in self.graph.items():
+            for i in v:
+                forward_graph[i].add(k)
+        return forward_graph
+
+    def __str__(self):
+        return "\n".join(["{}, {}".format(k, v) for k, v in self.graph.items()])
