@@ -7,6 +7,8 @@ import numpy as np
 import copy
 import time
 from TicTacToe import TicTacToe
+from multiprocessing import Pool
+import dill
 
 
 class Trainer():
@@ -21,18 +23,32 @@ class Trainer():
         return agents
 
     def simulate(self, weight, agents, max_length=1000, num_games=10):
-        for count, a in enumerate(agents):
+        for count, p_one in enumerate(agents):
             rewards = 0
+            opponents = agents[:]
+            opponents.remove(p_one)
             for n in range(num_games):
+                p_two = np.random.choice(opponents, 1)[0]
                 for i in range(max_length):
+                    #player one move
                     state = self.game.get_state()
-                    action = a.forward(weight, state)
+                    action = p_one.forward(weight, state)
                     reward = self.game.step(action)
                     if reward == -1 or reward == 1:
                         break
+
+                    #player two move
+                    self.game.board *= -1
+                    state = self.game.get_state()
+                    action = p_two.forward(weight, state)
+                    reward = -1 * self.game.step(action)
+                    self.game.board *= -1
+                    if reward == -1 or reward == 1:
+                        break
+
                 rewards += reward
                 self.game = self.game_class()
-            a.performance[weight] = rewards
+            p_one.performance[weight] = rewards
         return agents
 
 agents = [Agent(9, 2) for i in range(100)]
@@ -41,6 +57,19 @@ t = Trainer(TicTacToe)
 
 for generation in range(100):
     start = time.time()
+    # workers = 4
+    # with Pool(workers) as p:
+    #     if len(agents) % workers == 0:
+    #         step = len(agents) // workers
+    #     else:
+    #         step = int(round(len(agents) / workers) + 1)
+    #
+    #     agents = [agents[i:i+step] for i in range(0, len(agents), step)]
+    #     agents = p.map(t.run, agents)
+    # agents_initial = agents[0]
+    # for i in range(1, len(agents)):
+    #     agents_initial += agents[i]
+    # agents = agents_initial
     agents = t.run(agents)
 
     for count, a in enumerate(agents):

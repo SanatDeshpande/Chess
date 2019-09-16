@@ -3,6 +3,7 @@ import platypus
 import numpy as np
 from toposort import toposort_flatten
 import copy
+import Util
 
 class Agent():
     def __init__(self, input_size, output_size, *args, **kwargs):
@@ -11,17 +12,30 @@ class Agent():
         self.performance = {}
         self.criterion = None
 
+        # self.activations = {
+        #     'linear': lambda x: x,
+        #     'sigmoid': lambda x: max(0,x)/10 if x < -10 or x > 10 else 1 / (1 + np.exp(-1 * x)),
+        #     'tanh': lambda x: np.tanh(x),
+        #     'relu': lambda x: max(0, x),
+        #     'gaussian': lambda x: (1 / np.sqrt(2 * np.pi)) * np.exp((-1 * np.power(x, 2)) / 2),
+        #     'step': lambda x: 1 if x >= 0 else 0,
+        #     'sin': lambda x: np.sin(x),
+        #     'cos': lambda x: np.cos(x),
+        #     'inverse': lambda x: 1 / (x + 1e-9),
+        #     'abs': lambda x: np.abs(x),
+        # }
+
         self.activations = {
-            'linear': lambda x: x,
-            'sigmoid': lambda x: max(0,x)/10 if x < -10 or x > 10 else 1 / (1 + np.exp(-1 * x)),
-            'tanh': lambda x: np.tanh(x),
-            'relu': lambda x: max(0, x),
-            'gaussian': lambda x: (1 / np.sqrt(2 * np.pi)) * np.exp((-1 * np.power(x, 2)) / 2),
-            'step': lambda x: 1 if x >= 0 else 0,
-            'sin': lambda x: np.sin(x),
-            'cos': lambda x: np.cos(x),
-            'inverse': lambda x: 1 / (x + 1e-9),
-            'abs': lambda x: np.abs(x),
+            'linear': Util.linear,
+            'sigmoid': Util.sigmoid,
+            'tanh': Util.tanh,
+            'relu': Util.relu,
+            'gaussian': Util.gaussian,
+            'step': Util.step,
+            'sin': Util.sin,
+            'cos': Util.cos,
+            'inverse': Util.inverse,
+            'abs': Util.abs,
         }
 
         self.nodes = {i:self.activations['linear'] for i in range(input_size)}
